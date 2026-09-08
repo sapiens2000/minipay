@@ -6,3 +6,11 @@ spring:
     username: minipay
     password: minipay
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+  sql:
+    init:
+      mode: always

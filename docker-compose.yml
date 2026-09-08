@@ -1,0 +1,17 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: minipay-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: minipay
+      MYSQL_USER: minipay
+      MYSQL_PASSWORD: minipay
+    ports:
+      - "3308:3306"
+    volumes:
+      - minipay-mysql-data:/var/lib/mysql
+
+volumes:
+  minipay-mysql-data:

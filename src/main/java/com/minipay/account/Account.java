@@ -15,28 +15,29 @@ public class Account {
     private Long id;
 
     @Setter
-    @OneToOne(mappedBy = "account")
+    @Getter
+    @OneToOne
+    @JoinColumn(name = "USER_ID")
     private User user;
 
     @Getter
-    private long amount;
+    private long balance;
 
-    public User getUser() {
-        return user;
-    }
+    @Getter
+    private boolean isMainAccount;
 
     protected Account() {} // JPA 기본 생성자
 
-    public Account(long amount){
-        this.amount = amount;
+    public static Account createMainAccount(User user){
+        Account account = new Account();
+        account.setMainAccount(user, true);
+        return account;
     }
 
-    public void withdraw(long amount){
-        this.amount -= amount;
-    }
-
-    public void deposit(long amount){
-        this.amount += amount;
+    public void setMainAccount(User user, boolean mainAccount) {
+        this.user = user;
+        isMainAccount = true;
+        balance = 0;
     }
 
 }

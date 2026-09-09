@@ -15,14 +15,20 @@ public class UserService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
 
+
+    public User getUesr(Long id){
+        return userRepository.findById(id).get();
+    }
+
     /*
     * 유저 가입 시 호출하는 메서드
     * 유저/계좌 엔티티를 함께 생성
     *
     * */
     @Transactional
-    public void register(User user){
+    public void register(UserCreateRequest rq){
+        User user = rq.toUserEntity();
         userRepository.save(user);
-        //accountRepository.save();
+        accountRepository.save(Account.createMainAccount(user));
     }
 }

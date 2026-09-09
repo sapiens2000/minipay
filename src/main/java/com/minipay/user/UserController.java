@@ -16,6 +16,6 @@ public class UserController {
 
     @PostMapping
     public void register(@RequestBody UserCreateRequest rq){
-        userService.register(rq.toUserEntity());
+        userService.register(rq);
     }
 }

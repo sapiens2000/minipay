@@ -34,4 +34,7 @@ public class SavingsAccount {
         return savings;
     }
 
+    public void deposit(long amount){
+        this.balance += amount;
+    }
 }

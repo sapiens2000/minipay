@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 class UserServiceTest {
@@ -73,8 +74,14 @@ class UserServiceTest {
     }
 
     @Test
+    @Transactional
     void test_already_registered() {
+        userService.register(UserFactory.createUserCreateRequest());
+        userRepository.findByUsername("default").orElseThrow();
 
+        assertThatThrownBy(() -> {
+            userService.register(UserFactory.createUserCreateRequest());
+        }).isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test

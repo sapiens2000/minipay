@@ -45,6 +45,29 @@
 - 코드에 명시하지 않고 DB 기본값(MySQL REPEATABLE READ)을 그대로 사용.
 - 이후 스텝에서 격리 수준을 바꾸게 되면, 바뀌는 시점의 해당 Step 문서(예: STEP2.md 등)에 변경 사유와 함께 기록.
 
+## User-Account / User-SavingsAccount 연관관계 설계 (Aggregate 경계)
+
+- 문제 상황: `User.savingsAccount`(`@OneToMany(mappedBy="user")`, inverse side)를 서비스 코드에서
+  편의상 채워주려다가(`user.getSavingsAccount().add(...)`) 두 가지 문제를 반복적으로 겪음.
+  - 같은 트랜잭션 안에서 Hibernate 1차 캐시(identity map)로 인해 "DB를 실제로 조회하는지,
+    메모리에 캐시된 객체를 보는지" 구분이 안 되는 테스트가 만들어짐.
+  - 다른 트랜잭션에서 조회해 detach된 `User`(lazy 컬렉션이 초기화 안 된 프록시 상태)를
+    넘겨받아 `add()`를 호출하면 `LazyInitializationException` 발생.
+- 근본 원인: 객체 그래프 탐색(`user.getSavingsAccount()`)은 그 엔티티가 로드됐던 세션이
+  살아있을 때만 유효한데, 서비스 메서드들이 트랜잭션 경계를 넘나들며 `User` 객체를 주고받다 보니
+  이 전제가 계속 깨짐. SQL 레벨에서는 `savings_account` 테이블 하나만 보면 되는 조회를,
+  객체 레벨에서는 `User`를 거쳐 탐색하려 한 것이 문제의 본질.
+- 결정: `User`-`Account`(메인 계좌)와 `User`-`SavingsAccount`를 서로 다르게 취급하기로 함.
+  - `User` ↔ `Account`: 회원가입 시점에 항상 함께 생성되고 1:1로 묶여 생명주기를 같이함
+    → 같은 Aggregate로 보고 양방향 연관관계(`@OneToOne(mappedBy=...)`)를 유지.
+  - `User` ↔ `SavingsAccount`: 가입 이후 유저가 원할 때 독립적으로 생성 가능한 1:N 관계
+    → 서로 다른 Aggregate로 보고, `User`에서 컬렉션으로 직접 탐색하지 않고
+    `SavingsAccountRepository`를 통해 `userId` 기준으로 조회하는 방식으로 전환.
+    (`User.savingsAccount` 필드/양방향 편의 메서드는 제거하는 방향)
+- 판단 기준(일반화): 두 엔티티가 항상 같이 생성·삭제되고 한쪽 없이 다른 쪽이 의미가 없으면
+  같은 Aggregate로 보고 객체 참조를 유지, 서로 독립적인 생명주기·트랜잭션 경계를 가지면
+  별도 Aggregate로 보고 ID 참조 + Repository 조회로 분리.
+
 ## 테스트 커버리지 게이트 (CI)
 
 - `build.gradle.kts`에 JaCoCo 플러그인 추가, line coverage 80% 미만이면 `jacocoTestCoverageVerification`이 실패하도록 설정 (`check` task에 연결).
@@ -54,5 +77,6 @@
 ## 향후 스텝에서 결정할 항목
 
 - 예외 변환 위치 (서비스 try-catch / AOP / 핸들러 cause 분석): 지금은 예외 종류가 적어 근거가 흐릿함.
-  이후 스텝에서 예외가 더 추가되면 그때 패턴을 확정.
-- 자정 배치와 진행 중인 인출 트랜잭션 간 충돌 처리: 배치 도입 시점(해당 Step)에서 구체화.
+  중요도 낮음으로 판단, 이후 스텝에서 예외가 더 추가되면 그때 패턴을 확정.
+- 자정 배치와 진행 중인 인출 트랜잭션 간 충돌 처리: Step5(적금 기능, 이자 스케줄링)에서 배치를
+  본격적으로 다룰 때 함께 결정.

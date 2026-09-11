@@ -21,9 +21,8 @@ public class UserService {
     }
 
     /*
-    * 유저 가입 시 호출하는 메서드
+    * 유저 가입 시 호출하는 기본 생성 메서드
     * 유저/계좌 엔티티를 함께 생성
-    *
     * */
     @Transactional
     public void register(UserCreateRequest rq){
@@ -31,4 +30,5 @@ public class UserService {
         userRepository.save(user);
         accountRepository.save(Account.createMainAccount(user));
     }
+
 }

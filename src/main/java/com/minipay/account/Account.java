@@ -34,10 +34,31 @@ public class Account {
         return account;
     }
 
+    public static Account createMainAccount(User user, long balance){
+        Account account = new Account();
+        account.setMainAccount(user, true);
+        account.deposit(balance);
+        return account;
+    }
+
     public void setMainAccount(User user, boolean mainAccount) {
         this.user = user;
         isMainAccount = true;
         balance = 0;
+    }
+
+    public void setMainAccountWithBalance(User user, boolean mainAccount, long balance) {
+        this.user = user;
+        this.isMainAccount = true;
+        this.balance = balance;
+    }
+
+    public void withdraw(long amount){
+        this.balance -= amount;
+    }
+
+    public void deposit(long amount){
+        this.balance += amount;
     }
 
 }

@@ -1,9 +1,11 @@
 package com.minipay.user;
 
 
+import com.minipay.CleanUp;
 import com.minipay.account.Account;
 import com.minipay.account.AccountRepository;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,27 +36,19 @@ class UserServiceTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private CleanUp cleanUp;
+
     private static class UserFactory {
         public static UserCreateRequest createUserCreateRequest() {
             return new UserCreateRequest("default", "default");
         }
     }
 
-    @BeforeEach
-    void cleanUp() {
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
-        jdbcTemplate.execute("TRUNCATE TABLE account");
-        jdbcTemplate.execute("TRUNCATE TABLE `user`");
-        jdbcTemplate.execute("TRUNCATE TABLE savings_account");
-        jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+    @AfterEach
+    void tearDown(){
+        cleanUp.all();
     }
-
-
-//    @AfterEach
-//    void tearDown(){
-//        accountRepository.deleteAll();
-//        userRepository.deleteAll();
-//    }
 
     @Test
     @Transactional

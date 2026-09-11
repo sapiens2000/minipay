@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,14 +43,15 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Account account;
 
-    @Getter
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
-    private List<SavingsAccount> savingsAccount;
-
     public void setDefault(String username, String password) {
         this.username = username;
         this.password = password;
         this.dailyLimit = 3_000_000L;
         this.used = 0L;
     }
+
+    public void withdraw(long amount){
+        this.used += amount;
+    }
+
 }

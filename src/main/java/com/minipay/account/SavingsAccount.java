@@ -5,18 +5,21 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @Entity
 @Table(name = "SAVINGS_ACCOUNT")
 public class SavingsAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name ="SAVINGS_ACCOUNT_ID")
+    @Getter
     private Long id;
 
     @Getter
     private long balance;
 
     @Setter
+    @Getter
     @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User user;
@@ -37,4 +40,5 @@ public class SavingsAccount {
     public void deposit(long amount){
         this.balance += amount;
     }
+
 }

@@ -5,7 +5,6 @@ import com.minipay.user.User;
 import com.minipay.user.UserCreateRequest;
 import com.minipay.user.UserRepository;
 import com.minipay.user.UserService;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,6 @@ class SavingsAccountServiceTest {
 
 
         List<SavingsAccount> list = savingsAccountRepository.findByUserIdOrderByIdAsc(user.getId());
-        // 가장 마지막에 추가된 계좌 조회
         SavingsAccount savingsAccount = list.get(0);
 
 
@@ -83,7 +81,8 @@ class SavingsAccountServiceTest {
 
         //then
         assertThat(user.getUsed()).isEqualTo(amount);
-        assertThat(afterAccount.getBalance()).isEqualTo(afterSavingsAccount.getBalance() - amount);
+        assertThat().isEqualTo();
+        assertThat(afterSavingsAccount.getBalance()).isEqualTo(amount);
 
     }
 }
